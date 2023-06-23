@@ -21,7 +21,13 @@ type Post = {
 };
 
 let auth: any;
+
 onMounted(() => {
+  if (!user.value.uid) {
+    router.push('/');
+    return;
+  }
+
   auth = getAuth();
   console.log(auth, 'post.vue auth');
   console.log(user.value, 'post.vue');
@@ -46,7 +52,7 @@ const handleSignOut = () => {
   signOut(auth).then(() => {
     console.log('logout');
 
-    router.push('/');
+    // router.push('/');
   });
 };
 const addFirebase = (
@@ -70,7 +76,7 @@ const addFirebase = (
 </script>
 
 <template>
-  <div class="text-center my-5">
+  <div v-if="user.uid" class="text-center my-5">
     <button
       class="bg-slate-400/100 w-64 rounded-md text-white p-1 my-5"
       @click="handleSignOut"

@@ -10,7 +10,6 @@ let auth: any;
 onMounted(() => {
   auth = getAuth();
   onAuthStateChanged(auth, (authUser) => {
-    // データ取得に時間がかかって一時的にauth画面が表示される
     console.log(authUser, 'auth');
 
     if (authUser) {
@@ -18,10 +17,7 @@ onMounted(() => {
         uid: authUser.uid,
         displayName: authUser.displayName,
       };
-      console.log(user.value, 'before');
-
       login(loginUser);
-      console.log(user.value, 'after');
     } else {
       logout();
     }
