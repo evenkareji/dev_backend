@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { collection, addDoc, onSnapshot } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  doc,
+  setDoc,
+} from 'firebase/firestore';
 import { db } from '../src/plugins/firebase';
 import { ref } from 'vue';
 import { getAuth, signOut } from 'firebase/auth';
@@ -12,13 +18,14 @@ const inputtingOccupation = ref();
 const inputtingThoughts = ref();
 const router = useRouter();
 type Post = {
-  // userId: string;
   // username: string;
-  authorId: string;
+  id: string;
   company: string;
   occupation: string;
   desc: string;
-  // timestamp: string;
+  createdAt: number;
+  updateAt?: number | null;
+  authorId: string;
 };
 
 let auth: any;
@@ -38,9 +45,11 @@ onMounted(() => {
     posts.value = [];
     querySnapshot.forEach((doc) => {
       const post: Post = {
+        id: doc.id,
         authorId: user.value.uid,
         desc: doc.data().desc,
         company: doc.data().company,
+        createdAt: doc.data().createdAt,
         occupation: doc.data().occupation,
       };
 
@@ -61,12 +70,22 @@ const addFirebase = (
   registerOccupation: string,
   registerThoughts: string,
 ) => {
-  addDoc(collection(db, 'posts'), {
-    authorId: user.value.uid,
-    occupation: registerOccupation,
+  const ref = doc(collection(db, 'posts'));
+
+  const post = {
+    id: ref.id,
     company: registerCompany,
     desc: registerThoughts,
+    occupation: registerOccupation,
+    createdAt: Date.now(),
+    updateAt: null,
+    authorId: user.value.uid,
+  };
+
+  setDoc(ref, post).then(() => {
+    alert('記事を作成しました');
   });
+
   inputtingCompany.value = '';
   inputtingOccupation.value = '';
   inputtingThoughts.value = '';
