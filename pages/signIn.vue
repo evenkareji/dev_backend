@@ -15,7 +15,7 @@
     </p>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import {
   GoogleAuthProvider,
@@ -24,6 +24,9 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { useRouter } from 'vue-router';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '~~/src/plugins/firebase';
+const { user } = useUserState();
 
 const email = ref();
 const password = ref();
@@ -34,9 +37,19 @@ const signInWithGoogle = () => {
   const provider = new GoogleAuthProvider();
   signInWithPopup(getAuth(), provider)
     .then((result) => {
-      // router.push('/post');
+      const ref = doc(db, `users/${user.value.uid}`);
+      const userData = {
+        name: user.value.displayName,
+      };
+      console.log(userData);
+      // refを代入しdocumentのidをセット
+      setDoc(ref, userData).then(() => {
+        alert('userの作成に成功しました');
+      });
     })
-    .catch((error) => {});
+    .catch((error) => {
+      alert(error);
+    });
 };
 const authin = () => {
   const auth = getAuth();

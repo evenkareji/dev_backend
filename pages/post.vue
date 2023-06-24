@@ -14,6 +14,7 @@ const router = useRouter();
 type Post = {
   // userId: string;
   // username: string;
+  authorId: string;
   company: string;
   occupation: string;
   desc: string;
@@ -33,11 +34,11 @@ onMounted(() => {
   console.log(user.value, 'post.vue');
 
   // マウントした時にpushで配列に入れて展開
-  onSnapshot(collection(db, 'users'), (querySnapshot) => {
+  onSnapshot(collection(db, 'posts'), (querySnapshot) => {
     posts.value = [];
     querySnapshot.forEach((doc) => {
       const post: Post = {
-        ...user.value,
+        authorId: user.value.uid,
         desc: doc.data().desc,
         company: doc.data().company,
         occupation: doc.data().occupation,
@@ -60,11 +61,8 @@ const addFirebase = (
   registerOccupation: string,
   registerThoughts: string,
 ) => {
-  console.log(registerCompany);
-  console.log(registerOccupation);
-  console.log(registerThoughts);
-  addDoc(collection(db, 'users'), {
-    ...user.value,
+  addDoc(collection(db, 'posts'), {
+    authorId: user.value.uid,
     occupation: registerOccupation,
     company: registerCompany,
     desc: registerThoughts,

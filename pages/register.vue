@@ -1,6 +1,7 @@
 <template>
   <div class="border border-gray-300 w-72 p-3 my-6">
     <h1 class="font-bold text-lg">新規登録</h1>
+    <p><input type="text" placeholder="ユーザーネーム" v-model="name" /></p>
     <p><input type="text" placeholder="email" v-model="email" /></p>
     <p><input type="password" placeholder="password" v-model="password" /></p>
 
@@ -24,10 +25,13 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { useRouter } from 'vue-router';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '~~/src/plugins/firebase';
 const { login, user } = useUserState();
 
 console.log(user.value, 'register'); //ここで表示されないのでapp.vue
 // でlogin関数を扱い。グローバルにstateを渡せるようにする必要がある
+const name = ref();
 const email = ref();
 const password = ref();
 
@@ -36,8 +40,15 @@ const router = useRouter();
 const register = () => {
   createUserWithEmailAndPassword(getAuth(), email.value, password.value)
     .then((data) => {
-      console.log('Succcessfully registered');
-      router.push('/signIn');
+      // documentのidを前もって取得
+      const ref = doc(db, `users/${user.value.uid}`);
+
+      const userData = { name: name.value };
+      // refを代入しdocumentのidをセット
+      setDoc(ref, userData).then(() => {
+        alert('userの作成に成功しました');
+      });
+      router.push('/auth');
     })
     .catch((err) => {
       console.log(err.code);
